@@ -21,7 +21,6 @@
         button {
             padding: 10px 20px;
             font-size: 1em;
-            margin-top: 20px;
             cursor: pointer;
             background-color: #444;
             color: #fff;
@@ -129,14 +128,16 @@
                         <th>Nom</th>
                         <th>Groupe</th>
                         <th>Lieu de récupération</th>
+                        <th>Action</th>
                     </tr>
                 </thead>
                 <tbody id="directory-table">
-                    <!-- Exemple ajouté directement dans le répertoire -->
-                    <tr onclick="showEntry(0)">
+                    <!-- Exemple ajouté directement dans le répertoire avec bouton "Voir détails" -->
+                    <tr>
                         <td>Matheo Lazar</td>
                         <td>H-Block</td>
                         <td>Braquage</td>
+                        <td><button onclick="showEntry(0)">Voir détails</button></td>
                     </tr>
                 </tbody>
             </table>
