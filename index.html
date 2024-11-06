@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asshole Redneck</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #1a1a1a;
+            color: #e0e0e0;
+            text-align: center;
+        }
+        .container {
+            margin-top: 50px;
+        }
+        h1 {
+            font-size: 3em;
+            color: #ff0000;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 1em;
+            margin-top: 20px;
+            cursor: pointer;
+            background-color: #444;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+        }
+        #form-popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #2c2c2c;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        #form-popup label {
+            display: block;
+            margin-top: 10px;
+            text-align: left;
+        }
+        #form-popup input, #form-popup select {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            border-radius: 4px;
+            border: none;
+        }
+        .tabs {
+            margin-top: 30px;
+        }
+        .tab {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #333;
+            color: #fff;
+            cursor: pointer;
+            margin-right: 5px;
+            border-radius: 5px;
+        }
+        .active-tab {
+            background-color: #ff0000;
+        }
+        #directory {
+            display: block;
+            margin-top: 20px;
+        }
+        table {
+            width: 80%;
+            margin: 0 auto;
+            border-collapse: collapse;
+            color: #fff;
+        }
+        th, td {
+            border: 1px solid #444;
+            padding: 8px;
+            text-align: center;
+        }
+        .entry-popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #2c2c2c;
+            padding: 20px;
+            border-radius: 8px;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Asshole Redneck</h1>
+
+        <div class="tabs">
+            <span class="tab" onclick="showTab('form')">Ajout d'une carte d'identité</span>
+            <span class="tab active-tab" onclick="showTab('directory')">Répertoire carte d'identités</span>
+        </div>
+
+        <div id="form-popup">
+            <h2>Ajouter une carte d'identité</h2>
+            <form id="identity-form">
+                <label>Nom de la personne :</label>
+                <input type="text" id="name" required>
+
+                <label>Lieu de récupération :</label>
+                <input type="text" id="location" required>
+
+                <label>Groupe :</label>
+                <input type="text" id="group">
+
+                <label>Photo de la pièce d'identité :</label>
+                <input type="file" id="photo" accept=".png, .jpg, .jpeg" required>
+
+                <button type="submit">Envoyer</button>
+                <button type="button" onclick="closeForm()">Fermer</button>
+            </form>
+        </div>
+
+        <div id="directory">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nom</th>
+                        <th>Groupe</th>
+                        <th>Lieu de récupération</th>
+                    </tr>
+                </thead>
+                <tbody id="directory-table">
+                    <!-- Exemple ajouté directement dans le répertoire -->
+                    <tr onclick="showEntry(0)">
+                        <td>Matheo Lazar</td>
+                        <td>H-Block</td>
+                        <td>Braquage</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="entry-popup" class="entry-popup">
+        <h2>Détails de la carte d'identité</h2>
+        <p id="popup-name"></p>
+        <p id="popup-group"></p>
+        <p id="popup-location"></p>
+        <img id="popup-photo" width="100" alt="Photo de la pièce">
+        <button onclick="closeEntryPopup()">Fermer</button>
+    </div>
+
+    <script>
+        const entries = [
+            {
+                name: "Matheo Lazar",
+                location: "Braquage",
+                group: "H-Block",
+                photoUrl: "https://cdn.discordapp.com/attachments/1034092546395217972/1302730313197424772/d02d434a-5df0-4f4e-bd82-6e85f0f6c738.webp?ex=672c7966&is=672b27e6&hm=2d7671c990d47aaf98292fe87dd5421f1153501ab00ca52f71b16a07f739fff5&"
+            }
+        ];
+
+        function closeForm() {
+            document.getElementById('form-popup').style.display = 'none';
+        }
+
+        function showTab(tab) {
+            document.getElementById('form-popup').style.display = (tab === 'form') ? 'block' : 'none';
+            document.getElementById('directory').style.display = (tab === 'directory') ? 'block' : 'none';
+            document.querySelectorAll('.tab').forEach(el => el.classList.remove('active-tab'));
+            document.querySelector(`.tab[onclick="showTab('${tab}')"]`).classList.add('active-tab');
+        }
+
+        document.getElementById('identity-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            
+            const name = document.getElementById('name').value;
+            const location = document.getElementById('location').value;
+            const group = document.getElementById('group').value;
+            const photo = document.getElementById('photo').files[0];
+
+            sendToWebhook(name, location, group, photo);
+            closeForm();
+        });
+
+        function sendToWebhook(name, location, group, photo) {
+            const formData = new FormData();
+            formData.append('content', `Nom: ${name}\nLieu: ${location}\nGroupe: ${group}`);
+            formData.append('file', photo);
+
+            fetch("https://discord.com/api/webhooks/1292284284081668138/rkpjV-VQHl4TzjgAKAD8mem6vR0Hm2L_JVAHxs5NYJcaXodiRPYVZMsP47N9F_6ARumu", {
+                method: "POST",
+                body: formData
+            });
+        }
+
+        function showEntry(index) {
+            const entry = entries[index];
+            document.getElementById('popup-name').textContent = `Nom : ${entry.name}`;
+            document.getElementById('popup-group').textContent = `Groupe : ${entry.group}`;
+            document.getElementById('popup-location').textContent = `Lieu de récupération : ${entry.location}`;
+            document.getElementById('popup-photo').src = entry.photoUrl;
+            document.getElementById('entry-popup').style.display = 'block';
+        }
+
+        function closeEntryPopup() {
+            document.getElementById('entry-popup').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
